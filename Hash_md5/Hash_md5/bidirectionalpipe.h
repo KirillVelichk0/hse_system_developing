@@ -28,6 +28,13 @@ private:
                 }
             }
         }
+        Pipe(Pipe&& another){
+            std::swap(m_fds, another.m_fds);
+        }
+        Pipe& operator=(Pipe& another){
+            std::swap(m_fds, another.m_fds);
+            return *this;
+        }
         int& first(){
             return m_fds[0];
         }
@@ -43,6 +50,14 @@ private:
 public:
     BidirectionalPipe();
     ~BidirectionalPipe() = default;
+
+    BidirectionalPipe(BidirectionalPipe&&)=default;
+    BidirectionalPipe& operator=(BidirectionalPipe&&) = default;
+
+
+public:
+    BidirectionalPipe(const BidirectionalPipe&)=delete;
+    BidirectionalPipe& operator=(const BidirectionalPipe&) = delete;
 };
 
 template <bool isParent>
