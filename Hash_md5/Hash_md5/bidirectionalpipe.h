@@ -29,10 +29,14 @@ private:
             }
         }
         Pipe(Pipe&& another){
-            std::swap(m_fds, another.m_fds);
+            for(int i = 0; i<2; i++){
+                std::swap(m_fds[i], another.m_fds[i]);
+            }
         }
-        Pipe& operator=(Pipe& another){
-            std::swap(m_fds, another.m_fds);
+        Pipe& operator=(Pipe&& another){
+            for(int i = 0; i<2; i++){
+                std::swap(m_fds[i], another.m_fds[i]);
+            }
             return *this;
         }
         int& first(){
@@ -41,6 +45,9 @@ private:
         int& second(){
             return m_fds[1];
         }
+
+        Pipe(const Pipe&)=delete;
+        Pipe& operator=(const Pipe&) = delete;
     };
 
 private:
