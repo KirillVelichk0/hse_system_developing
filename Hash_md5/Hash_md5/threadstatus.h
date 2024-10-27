@@ -9,10 +9,10 @@ class ThreadStatus
 private:
     std::atomic<std::uint16_t> m_status;
 public:
-    ThreadStatus();
+    ThreadStatus() noexcept;
     ~ThreadStatus() = default;
-    bool TrySetStatus(ThreadStatusCode code);
-    ThreadStatusCode GetCurrentStatus() const;
+    bool TrySetStatus(ThreadStatusCode code) noexcept;
+    ThreadStatusCode GetCurrentStatus() const noexcept;
 };
 }
 

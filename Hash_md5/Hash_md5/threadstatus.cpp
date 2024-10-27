@@ -1,11 +1,11 @@
 #include "threadstatus.h"
 namespace status{
-ThreadStatus::ThreadStatus() : m_status(0)
+ThreadStatus::ThreadStatus() noexcept : m_status(0)
 {
 
 }
 
-bool ThreadStatus::TrySetStatus(ThreadStatusCode code)
+bool ThreadStatus::TrySetStatus(ThreadStatusCode code) noexcept
 {
     bool result = false;
     std::uint16_t currentStatus = this->GetCurrentStatus();
@@ -18,7 +18,7 @@ bool ThreadStatus::TrySetStatus(ThreadStatusCode code)
     return result;
 }
 
-ThreadStatusCode ThreadStatus::GetCurrentStatus() const
+ThreadStatusCode ThreadStatus::GetCurrentStatus() const noexcept
 {
     std::uint16_t status = m_status.load(std::memory_order_acquire);
     return static_cast<ThreadStatusCode>(status);
