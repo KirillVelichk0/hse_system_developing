@@ -99,6 +99,7 @@ public:
         if(buffer.size() < lenToRead){
             throw std::invalid_argument("lenToRead less then buffer size");
         }
+
         auto bytesReaden = read(m_readFd, (char*)buffer.data(), lenToRead * sizeof(buffer[0]));
         if(bytesReaden == -1){
             throw std::runtime_error("Cant read to buffer");
@@ -107,15 +108,23 @@ public:
     }
 
     template <class BufferType>
-    std::uint32_t WriteFromBuffer(BufferType& buffer, std::size_t lenToWrite){
+    void WriteFromBuffer(BufferType& buffer, std::size_t lenToWrite){
+        constexpr char endSymb = '\0';
         if(buffer.size() < lenToWrite){
             throw std::invalid_argument("lenToWrite less then buffer size");
         }
-        auto bytesWriten = write(m_writeFd, (char*)buffer.data(), lenToWrite * sizeof(buffer[0]));
-        if(bytesWriten == -1){
-            throw std::runtime_error("Cant read to buffer");
+        int sended = 0;
+        while(sended < lenToWrite){
+            auto bytesWriten = write(m_writeFd, (char*)buffer.data() + sended, lenToWrite * sizeof(buffer[0]));
+            if(bytesWriten < 0){
+                throw std::runtime_error("Cant write data to pipe");
+            }
+            sended += bytesWriten;
         }
-        return bytesWriten;
+        auto bytesWriten = write(m_writeFd, (char*)&endSymb, 1);
+        if(bytesWriten < 0){
+            throw std::runtime_error("Cant write end symbol to pipe");
+        }
     }
 
 public:

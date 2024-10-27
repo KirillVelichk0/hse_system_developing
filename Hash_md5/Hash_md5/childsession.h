@@ -4,22 +4,33 @@
 #include <vector>
 #include <string>
 #include <memory>
+#include <optional>
 #include "threadguard.h"
 #include "bidirectionalpipe.h"
 #include "md5calcer.h"
+#include "threadstatus.h"
 
 class ChildSession final : std::enable_shared_from_this<ChildSession>
 {
 private:
-    std::vector<ThreadGuard> m_threads;
+    struct ThreadPool{
+        std::vector<ThreadGuard> m_threads;
+        std::vector<status::ThreadStatus> m_statuses;
+    };
+    ThreadPool m_threads;
     ChildEndPipe m_pipe;
     std::shared_ptr<Md5Calcer> m_calcer;
+    std::string m_expected;
+    std::mutex m_readMutex;
+    std::mutex m_writeMutex;
 private:
     void InitWorkers();
-    void StartWorkerTask();
-    ChildSession(const std::initializer_list<std::string>& initWords, BidirectionalPipe&& pipe);
+    void StartWorkerTask(status::ThreadStatus& status);
+    void SendData(const std::string& data);
+    std::optional<std::string> ReadData();
+    ChildSession(const std::initializer_list<std::string>& initWords, const std::string& expected, BidirectionalPipe&& pipe);
 public:
-    static std::shared_ptr<ChildSession> Create(const std::initializer_list<std::string>& initWords, BidirectionalPipe&& pipe);
+    static std::shared_ptr<ChildSession> Create(const std::initializer_list<std::string>& initWords, const std::string& expected, BidirectionalPipe&& pipe);
     ~ChildSession() = default;
     [[noreturn]] void StartSession();
 public:

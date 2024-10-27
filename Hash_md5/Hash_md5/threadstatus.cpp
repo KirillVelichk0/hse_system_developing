@@ -1,5 +1,5 @@
 #include "threadstatus.h"
-
+namespace status{
 ThreadStatus::ThreadStatus() : m_status(0)
 {
 
@@ -22,4 +22,5 @@ ThreadStatusCode ThreadStatus::GetCurrentStatus() const
 {
     std::uint16_t status = m_status.load(std::memory_order_acquire);
     return static_cast<ThreadStatusCode>(status);
+}
 }

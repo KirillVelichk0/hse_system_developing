@@ -2,7 +2,8 @@
 #define THREADSTATUS_H
 #include <atomic>
 #include <cstdint>
-enum ThreadStatusCode : std::uint16_t {NotActive, Active, Ready, Error};
+namespace status{
+enum ThreadStatusCode : std::uint16_t {NotActive, Active, Ready, Interrupted, Error};
 class ThreadStatus
 {
 private:
@@ -13,5 +14,6 @@ public:
     bool TrySetStatus(ThreadStatusCode code);
     ThreadStatusCode GetCurrentStatus() const;
 };
+}
 
 #endif // THREADSTATUS_H
