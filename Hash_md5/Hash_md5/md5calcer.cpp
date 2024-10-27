@@ -47,6 +47,9 @@ Md5Calcer::Md5Calcer(const std::string& initialWord){
 }
 
 Md5Calcer::Md5Calcer(const std::initializer_list<std::string>& initialWords){
+    if(initialWords.size() == 0){
+        throw std::runtime_error("Cant pass empty initial list to calcer");
+    }
     for(const auto& word: initialWords){
         m_queue.Push(word);
     }
@@ -95,7 +98,7 @@ CalcResult GenerateHash(const std::string &input)
     return result;
 }
 
-std::shared_ptr<Md5Calcer> Md5Calcer::Create(const std::string& initialWord){
+std::shared_ptr<Md5Calcer> Md5Calcer::Create(const std::initializer_list<std::string>& initialWord){
     return std::shared_ptr<Md5Calcer>(new Md5Calcer(initialWord));
 }
 

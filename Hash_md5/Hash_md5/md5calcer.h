@@ -40,7 +40,7 @@ private:
     std::string GetNextWord();
     void GenerateNextWords(const std::string& word);
 public:
-    static std::shared_ptr<Md5Calcer> Create(const std::string& initialWord);
+    static std::shared_ptr<Md5Calcer> Create(const std::initializer_list<std::string>& initialWord);
     ~Md5Calcer() = default;
     CalcResult GoNext();
 public:
