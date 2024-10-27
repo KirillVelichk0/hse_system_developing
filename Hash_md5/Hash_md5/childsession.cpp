@@ -128,6 +128,7 @@ void ChildSession::StartSession()
         try{
             this->CheckParentInput();
             this->CheckWorkersStatuses();
+            std::this_thread::yield();
         } catch(...){
             this->InterruptAllWorkers();
             throw;
