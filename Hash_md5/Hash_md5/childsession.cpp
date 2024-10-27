@@ -45,11 +45,27 @@ void ChildSession::SendData(const std::string &data)
     m_pipe.WriteFromBuffer(data, data.size());
 }
 
+bool ProcessPostfix(std::string& postFix, std::string& result){
+    auto it = std::find(postFix.begin(), postFix.end(), '\0');
+    result = std::string(postFix.begin(), it);
+    if(it != postFix.end() && *it == '\0'){
+        postFix = std::string(std::next(it, 1), postFix.end());
+        return true;
+    } else{
+        postFix = std::string();
+        return false;
+    }
+}
+
 std::optional<std::string> ChildSession::ReadData()
 {
     static std::array<char, 256> dataBuffer;
+    static std::string postFix;
     std::string result;
     std::lock_guard lock(m_readMutex);
+    if(ProcessPostfix(postFix, result)){
+        return result;
+    }
     auto bytesReaded = m_pipe.ReadToBuffer(dataBuffer, dataBuffer.size());
     if(bytesReaded == 0){
         return {};
@@ -61,6 +77,9 @@ std::optional<std::string> ChildSession::ReadData()
         auto endIt = std::find(begin, end, '\0');
         goNext = (endIt == end);
         std::copy(dataBuffer.begin(), endIt, std::back_inserter(result));
+        if(!goNext){
+            postFix = std::string(std::next(endIt, 1), end);
+        }
     }
     return result;
 }
