@@ -19,5 +19,7 @@ target_link_libraries(md5_calcer PRIVATE OpenSSL::SSL OpenSSL::Crypto)
 add_library(bidirectional_pipe bidirectionalpipe.cpp)
 
 add_executable(Hash_md5 main.cpp)
+add_executable(utils utils.cpp)
 
-target_link_libraries(Hash_md5 PRIVATE bidirectional_pipe)
+target_link_libraries(utils PRIVATE md5_calcer)
+target_link_libraries(Hash_md5 PRIVATE bidirectional_pipe md5_calcer)
