@@ -1,16 +1,47 @@
 #include "childsession.h"
+#include "ipcexceptions.h"
 #include <array>
 #include <algorithm>
+
+void ChildSession::CheckParentInput()
+{
+    auto input = this->ReadData();
+    // здесь может быть более сложная логика
+    if(input){
+        this->InterruptAllWorkers();
+    }
+
+}
+
+void ChildSession::InterruptAllWorkers()
+{
+    for(auto& status: m_threads.m_statuses){
+        status.TrySetStatus(status::Interrupted);
+    }
+}
+
+void ChildSession::CheckWorkersStatuses()
+{
+    for(auto& status: m_threads.m_statuses){
+        auto code = status.GetCurrentStatus();
+        child::TryThrowFromStatusCode(code);
+    }
+}
+
 void ChildSession::InitWorkers()
 {
     auto createTask = [this](status::ThreadStatus& status){
         return [weakSelf = this->weak_from_this(), &status](){
-            auto self = weakSelf.lock();
-            if(self == nullptr){
+            try{
+                auto self = weakSelf.lock();
+                if(self == nullptr){
+                    status.TrySetStatus(status::Error);
+                    return;
+                }
+                self->StartWorkerTask(status);
+            } catch(...){
                 status.TrySetStatus(status::Error);
-                return;
             }
-            self->StartWorkerTask(status);
         };
     };
     auto poolSize = std::thread::hardware_concurrency() - 1;
@@ -22,20 +53,16 @@ void ChildSession::InitWorkers()
 
 void ChildSession::StartWorkerTask(status::ThreadStatus& status)
 {
-    try{
-        if(!status.TrySetStatus(status::Active)){
-            status.TrySetStatus(status::Error);
-            return;
-        }
-        while(status.GetCurrentStatus() < status::Ready){
-            auto calcResult = m_calcer->GoNext();
-            if(calcResult.m_hash_16 == m_expected){
-                status.TrySetStatus(status::Ready);
-                this->SendData(calcResult.m_word);
-            }
-        }
-    } catch(...){
+    if(!status.TrySetStatus(status::Active)){
         status.TrySetStatus(status::Error);
+        return;
+    }
+    for(auto statusCode = status.GetCurrentStatus(); statusCode < status::Ready; statusCode = status.GetCurrentStatus()){
+        auto calcResult = m_calcer->GoNext();
+        if(calcResult.m_hash_16 == m_expected){
+            status.TrySetStatus(status::Ready);
+            this->SendData(calcResult.m_word);
+        }
     }
 }
 
@@ -96,10 +123,14 @@ std::shared_ptr<ChildSession> ChildSession::Create(const std::initializer_list<s
 
 void ChildSession::StartSession()
 {
-    try{
-        InitWorkers();
-
-    } catch(...){
-
+    InitWorkers();
+    while(true){
+        try{
+            this->CheckParentInput();
+            this->CheckWorkersStatuses();
+        } catch(...){
+            this->InterruptAllWorkers();
+            throw;
+        }
     }
 }

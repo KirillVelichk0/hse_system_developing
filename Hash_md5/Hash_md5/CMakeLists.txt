@@ -10,8 +10,12 @@ find_package(OpenSSL REQUIRED)
 if (NOT OpenSSL_FOUND)
     message(FATAL_ERROR "OpenSSL not found!")
 endif()
+
 add_library(thread_status threadstatus.cpp)
+add_library(ipc_exceptions ipcexceptions.cpp)
 add_library(md5_calcer md5calcer.cpp)
+
+target_link_libraries(ipc_exceptions PUBLIC thread_status)
 
 target_include_directories(md5_calcer PRIVATE ${OPENSSL_INCLUDE_DIR})
 target_link_libraries(md5_calcer PRIVATE OpenSSL::SSL OpenSSL::Crypto)
@@ -20,7 +24,7 @@ add_library(bidirectional_pipe bidirectionalpipe.cpp)
 add_library(thread_guard threadguard.cpp)
 
 add_library(child_session childsession.cpp)
-target_link_libraries(child_session PUBLIC bidirectional_pipe thread_guard md5_calcer thread_status)
+target_link_libraries(child_session PUBLIC bidirectional_pipe thread_guard md5_calcer thread_status ipc_exceptions)
 
 add_executable(Hash_md5 main.cpp)
 add_executable(utils utils.cpp)

@@ -24,6 +24,9 @@ private:
     std::mutex m_readMutex;
     std::mutex m_writeMutex;
 private:
+    void CheckParentInput();
+    void InterruptAllWorkers();
+    void CheckWorkersStatuses();
     void InitWorkers();
     void StartWorkerTask(status::ThreadStatus& status);
     void SendData(const std::string& data);
