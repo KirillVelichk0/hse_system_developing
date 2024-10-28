@@ -10,7 +10,13 @@
 #include "md5calcer.h"
 #include "threadstatus.h"
 
-class ChildSession final : std::enable_shared_from_this<ChildSession>
+class ChildSessionExit : public std::runtime_error{
+public:
+    ChildSessionExit() : std::runtime_error("Child session exit"){}
+};
+
+
+class ChildSession final : public std::enable_shared_from_this<ChildSession>
 {
 private:
     struct ThreadPool{

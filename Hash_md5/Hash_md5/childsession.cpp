@@ -131,7 +131,7 @@ void ChildSession::StartSession()
             std::this_thread::yield();
         } catch(...){
             this->InterruptAllWorkers();
-            throw;
+            throw ChildSessionExit();
         }
     }
 }

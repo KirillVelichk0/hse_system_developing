@@ -26,6 +26,9 @@ add_library(thread_guard threadguard.cpp)
 add_library(child_session childsession.cpp)
 target_link_libraries(child_session PUBLIC bidirectional_pipe thread_guard md5_calcer thread_status ipc_exceptions)
 
+add_library(parent_session parentsession.cpp)
+target_link_libraries(parent_session PUBLIC child_session)
+
 add_executable(Hash_md5 main.cpp)
 add_executable(utils utils.cpp)
 
