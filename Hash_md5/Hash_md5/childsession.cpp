@@ -15,32 +15,32 @@ void ChildSession::CheckParentInput()
 
 void ChildSession::InterruptAllWorkers()
 {
-    for(auto& status: m_threads.m_statuses){
-        status.TrySetStatus(status::Interrupted);
+    for(auto status: m_threads.m_statuses){
+        status->TrySetStatus(status::Interrupted);
     }
 }
 
 void ChildSession::CheckWorkersStatuses()
 {
-    for(auto& status: m_threads.m_statuses){
-        auto code = status.GetCurrentStatus();
+    for(auto status: m_threads.m_statuses){
+        auto code = status->GetCurrentStatus();
         child::TryThrowFromStatusCode(code);
     }
 }
 
 void ChildSession::InitWorkers()
 {
-    auto createTask = [this](status::ThreadStatus& status){
-        return [weakSelf = this->weak_from_this(), &status](){
+    auto createTask = [this](std::shared_ptr<status::ThreadStatus> status){
+        return [weakSelf = this->weak_from_this(), status](){
             try{
                 auto self = weakSelf.lock();
                 if(self == nullptr){
-                    status.TrySetStatus(status::Error);
+                    status->TrySetStatus(status::Error);
                     return;
                 }
                 self->StartWorkerTask(status);
             } catch(...){
-                status.TrySetStatus(status::Error);
+                status->TrySetStatus(status::Error);
             }
         };
     };
@@ -51,16 +51,16 @@ void ChildSession::InitWorkers()
     }
 }
 
-void ChildSession::StartWorkerTask(status::ThreadStatus& status)
+void ChildSession::StartWorkerTask(std::shared_ptr<status::ThreadStatus> status)
 {
-    if(!status.TrySetStatus(status::Active)){
-        status.TrySetStatus(status::Error);
+    if(!status->TrySetStatus(status::Active)){
+        status->TrySetStatus(status::Error);
         return;
     }
-    for(auto statusCode = status.GetCurrentStatus(); statusCode < status::Ready; statusCode = status.GetCurrentStatus()){
+    for(auto statusCode = status->GetCurrentStatus(); statusCode < status::Ready; statusCode = status->GetCurrentStatus()){
         auto calcResult = m_calcer->GoNext();
         if(calcResult.m_hash_16 == m_expected){
-            status.TrySetStatus(status::Ready);
+            status->TrySetStatus(status::Ready);
             this->SendData(calcResult.m_word);
         }
     }

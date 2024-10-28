@@ -15,7 +15,7 @@ class ChildSession final : std::enable_shared_from_this<ChildSession>
 private:
     struct ThreadPool{
         std::vector<ThreadGuard> m_threads;
-        std::vector<status::ThreadStatus> m_statuses;
+        std::vector<std::shared_ptr<status::ThreadStatus>> m_statuses;
     };
     ThreadPool m_threads;
     ChildEndPipe m_pipe;
@@ -28,7 +28,7 @@ private:
     void InterruptAllWorkers();
     void CheckWorkersStatuses();
     void InitWorkers();
-    void StartWorkerTask(status::ThreadStatus& status);
+    void StartWorkerTask(std::shared_ptr<status::ThreadStatus> status);
     void SendData(const std::string& data);
     std::optional<std::string> ReadData();
     ChildSession(const std::initializer_list<std::string>& initWords, const std::string& expected, BidirectionalPipe&& pipe);
