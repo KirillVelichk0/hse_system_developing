@@ -114,11 +114,7 @@ public:
             if(errno == EAGAIN){
                 return 0;
             }
-            std::cout << errno << " read error"<< std::endl;
             throw std::runtime_error("Cant read to buffer");
-        }
-        if(bytesReaden > 0){
-            std::cout << "Readed" << std::endl;
         }
         return bytesReaden;
     }
@@ -133,7 +129,6 @@ public:
         while(sended < lenToWrite){
             auto bytesWriten = write(m_writeFd, (char*)buffer.data() + sended, lenToWrite * sizeof(buffer[0]) - sended);
             if(bytesWriten < 0){
-                std::cout << errno << " Write error"<< std::endl;
                 throw std::runtime_error("Cant write data to pipe");
             }
             sended += bytesWriten;
