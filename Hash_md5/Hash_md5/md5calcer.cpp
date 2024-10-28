@@ -4,12 +4,12 @@
 #include <sstream>
 #include <openssl/md5.h>
 
-bool ThreadQueue::Push(const std::string& word){
+bool ThreadQueue::Push(std::string word){
     std::lock_guard lock(m_mutex);
     if(!m_isAcive){
         return false;
     }
-    m_queue.push(word);
+    m_queue.push(std::move(word));
     m_cond.notify_one();
     return true;
 }

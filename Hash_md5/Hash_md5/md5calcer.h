@@ -18,7 +18,7 @@ private:
 public:
     ThreadQueue() = default;
     ~ThreadQueue();
-    bool Push(const std::string& word);
+    bool Push(std::string word);
     bool Pop(std::string& word);
     void Stop();
 };
