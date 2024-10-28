@@ -142,7 +142,6 @@ public:
         if(bytesWriten < 0){
             throw std::runtime_error("Cant write end symbol to pipe");
         }
-        std::cout << "Data successfully sended" << std::endl;
     }
 
 public:

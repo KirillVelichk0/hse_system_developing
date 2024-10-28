@@ -16,23 +16,7 @@ void ParentSession::ForkSession(const std::initializer_list<std::string>& initWo
     if( pid < 0){
         throw std::runtime_error("Cant fork process");
     } else if(pid == 0){
-        //дочерний процесс
-        std::string fileName = "logs" + std::to_string(getpid()) +".txt";
-        int fd = open(fileName.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0644);
-        if (fd < 0) {
-            perror("open");
-            throw ChildSessionExit();
-        }
-
-        // Перенаправляем stdout в файл
-        dup2(fd, STDOUT_FILENO);
-        dup2(fd, STDERR_FILENO); // Если хотите также перенаправить stderr
-
-        // Закрываем дескриптор файла, он больше не нужен
-        close(fd);
-        std::cout << "START CHILD SESSION" << std::endl;
         auto childSession = ChildSession::Create(initWords, m_expectedWord, std::move(pipe));
-        std::cout << "Child session created" << std::endl;
         childSession->StartSession(); //выход только через исключение ChildSessionExit
     } else{
         m_controller.AddSession(pid, std::move(pipe));
@@ -67,7 +51,6 @@ std::string ParentSession::Dispatch()
     while(true){
         auto answer = m_controller.TryGetAnswer();
         if(answer){
-            std::cout << "Found answer. Now need to interupt all. Answer: " << answer.value() << std::endl;
             this->m_controller.InterruptAll();
             return answer.value();
         }
@@ -188,7 +171,6 @@ std::optional<std::string> ChildSessionInfo::TryReadData()
             end = std::next(begin, bytesReaded);
         }
     }
-    std::cout << "Parent session reading done" << std::endl;
     return result;
 }
 
