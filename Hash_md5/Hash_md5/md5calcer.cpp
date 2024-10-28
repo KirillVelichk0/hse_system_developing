@@ -58,7 +58,9 @@ Md5Calcer::Md5Calcer(const std::initializer_list<std::string>& initialWords){
 std::string Md5Calcer::GetNextWord()
 {
     std::string next;
-    m_queue.Pop(next);
+    if(!m_queue.Pop(next)){
+        throw std::runtime_error("Queue not active");
+    }
     return next;
 }
 
@@ -66,11 +68,11 @@ void Md5Calcer::GenerateNextWords(const std::string &word)
 {
     auto wordCopy = word;
     constexpr auto diff1 = 'z' - 'a';
-    constexpr auto diff2 = 10;
+    constexpr auto diff2 = 9;
     auto setVars = [this](std::string& word, char initSymb, int diff){
         auto it = std::next(word.end(), -1);
         for(int i = 0; i <= diff; i++){
-            char symb = initSymb + diff;
+            char symb = initSymb + i;
             *it = symb;
             m_queue.Push(word);
         }

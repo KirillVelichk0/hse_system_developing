@@ -7,6 +7,7 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+#include <fcntl.h>
 
 void ParentSession::ForkSession(const std::initializer_list<std::string>& initWords)
 {
@@ -16,7 +17,22 @@ void ParentSession::ForkSession(const std::initializer_list<std::string>& initWo
         throw std::runtime_error("Cant fork process");
     } else if(pid == 0){
         //дочерний процесс
+        std::string fileName = "logs" + std::to_string(getpid()) +".txt";
+        int fd = open(fileName.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0644);
+        if (fd < 0) {
+            perror("open");
+            throw ChildSessionExit();
+        }
+
+        // Перенаправляем stdout в файл
+        dup2(fd, STDOUT_FILENO);
+        dup2(fd, STDERR_FILENO); // Если хотите также перенаправить stderr
+
+        // Закрываем дескриптор файла, он больше не нужен
+        close(fd);
+        std::cout << "START CHILD SESSION" << std::endl;
         auto childSession = ChildSession::Create(initWords, m_expectedWord, std::move(pipe));
+        std::cout << "Child session created" << std::endl;
         childSession->StartSession(); //выход только через исключение ChildSessionExit
     } else{
         m_controller.AddSession(pid, std::move(pipe));
@@ -51,6 +67,8 @@ std::string ParentSession::Dispatch()
     while(true){
         auto answer = m_controller.TryGetAnswer();
         if(answer){
+            std::cout << "Found answer. Now need to interupt all. Answer: " << answer.value() << std::endl;
+            this->m_controller.InterruptAll();
             return answer.value();
         }
         m_controller.UpdateStatuses();
@@ -135,7 +153,7 @@ void ChildSessionsController::InterruptAll()
 static bool ProcessPostfix(std::string& postFix, std::string& result){
     auto it = std::find(postFix.begin(), postFix.end(), '\0');
     result = std::string(postFix.begin(), it);
-    if(it != postFix.end() && *it == '\0'){
+    if(it != postFix.end()){
         postFix = std::string(std::next(it, 1), postFix.end());
         return true;
     } else{
@@ -162,11 +180,15 @@ std::optional<std::string> ChildSessionInfo::TryReadData()
     while(goNext){
         auto endIt = std::find(begin, end, '\0');
         goNext = (endIt == end);
-        std::copy(dataBuffer.begin(), endIt, std::back_inserter(result));
+        std::copy(begin, endIt, std::back_inserter(result));
         if(!goNext){
             postFix = std::string(std::next(endIt, 1), end);
+        } else{
+            bytesReaded = m_pipe.ReadToBuffer(dataBuffer, dataBuffer.size());
+            end = std::next(begin, bytesReaded);
         }
     }
+    std::cout << "Parent session reading done" << std::endl;
     return result;
 }
 

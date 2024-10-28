@@ -117,6 +117,9 @@ public:
             std::cout << errno << " read error"<< std::endl;
             throw std::runtime_error("Cant read to buffer");
         }
+        if(bytesReaden > 0){
+            std::cout << "Readed" << std::endl;
+        }
         return bytesReaden;
     }
 
@@ -128,7 +131,7 @@ public:
         }
         int sended = 0;
         while(sended < lenToWrite){
-            auto bytesWriten = write(m_writeFd, (char*)buffer.data() + sended, lenToWrite * sizeof(buffer[0]));
+            auto bytesWriten = write(m_writeFd, (char*)buffer.data() + sended, lenToWrite * sizeof(buffer[0]) - sended);
             if(bytesWriten < 0){
                 std::cout << errno << " Write error"<< std::endl;
                 throw std::runtime_error("Cant write data to pipe");
@@ -139,6 +142,7 @@ public:
         if(bytesWriten < 0){
             throw std::runtime_error("Cant write end symbol to pipe");
         }
+        std::cout << "Data successfully sended" << std::endl;
     }
 
 public:

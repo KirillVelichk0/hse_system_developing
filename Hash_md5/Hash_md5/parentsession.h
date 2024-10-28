@@ -9,14 +9,14 @@
 #include <string>
 #include <stdexcept>
 
-class ChildSessionError : std::runtime_error{
+class ChildSessionError : public std::runtime_error{
 private:
     std::int32_t m_sessionId;
 public:
     ChildSessionError(std::int32_t sessionId) : std::runtime_error("Child sesssion was crashed"), m_sessionId(sessionId){}
 };
 
-class AllSessionsDone : std::runtime_error{
+class AllSessionsDone : public std::runtime_error{
 public:
     AllSessionsDone() : std::runtime_error("All sessions Done"){}
 };

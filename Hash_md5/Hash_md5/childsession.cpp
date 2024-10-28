@@ -46,9 +46,13 @@ void ChildSession::InitWorkers()
         };
     };
     auto poolSize = std::thread::hardware_concurrency() - 1;
+    std::cout << "Pool size is " << poolSize << std::endl;
     for(int i = 0; i < poolSize; i++){
-        auto& status = m_threads.m_statuses.emplace_back();
+        std::cout << "Initing thread " << i << std::endl;
+        auto& status = m_threads.m_statuses.emplace_back(std::make_shared<status::ThreadStatus>());
+        std::cout << "status " << i << "inited" << std::endl;
         m_threads.m_threads.emplace_back(createTask(status));
+        std::cout << "Thread " << i << "emplaced" << std::endl;
     }
 }
 
@@ -60,7 +64,9 @@ void ChildSession::StartWorkerTask(std::shared_ptr<status::ThreadStatus> status)
     }
     for(auto statusCode = status->GetCurrentStatus(); statusCode < status::Ready; statusCode = status->GetCurrentStatus()){
         auto calcResult = m_calcer->GoNext();
-        if(calcResult.m_hash_16 == m_expected){
+        bool isEq = calcResult.m_hash_16 == m_expected;
+        if(isEq){
+            std::cout << "Success!!!!!!!!" << std::endl;
             status->TrySetStatus(status::Ready);
             this->SendData(calcResult.m_word);
         }
@@ -107,6 +113,9 @@ std::optional<std::string> ChildSession::ReadData()
         std::copy(dataBuffer.begin(), endIt, std::back_inserter(result));
         if(!goNext){
             postFix = std::string(std::next(endIt, 1), end);
+        } else{
+            bytesReaded = m_pipe.ReadToBuffer(dataBuffer, dataBuffer.size());
+            end = std::next(begin, bytesReaded);
         }
     }
     return result;
@@ -124,21 +133,25 @@ std::shared_ptr<ChildSession> ChildSession::Create(const std::initializer_list<s
 
 void ChildSession::StartSession()
 {
-    InitWorkers();
-    while(true){
-        try{
+    try{
+        std::cout << "Creating workers" << std::endl;
+        InitWorkers();
+        std::cout << "Created workers" << std::endl;
+        while(true){
+            //std::cout << "Checking input" << std::endl;
             this->CheckParentInput();
+            //std::cout << "Checking workers" << std::endl;
             this->CheckWorkersStatuses();
             std::this_thread::yield();
-        } catch(std::exception& ex){
-            this->InterruptAllWorkers();
-            std::cout << "Child session done with id " <<getpid() << " and message: " << ex.what() << std::endl;
-            throw ChildSessionExit();
         }
-        catch(...){
-            this->InterruptAllWorkers();
-            std::cout << "Child session done with id " <<getpid() << std::endl;
-            throw ChildSessionExit();
-        }
+    } catch(std::exception& ex){
+        this->InterruptAllWorkers();
+        std::cout << "Child session done with id " <<getpid() << " and message: " << ex.what() << std::endl;
+        throw ChildSessionExit();
+    }
+    catch(...){
+        this->InterruptAllWorkers();
+        std::cout << "Child session done with id " <<getpid() << std::endl;
+        throw ChildSessionExit();
     }
 }
