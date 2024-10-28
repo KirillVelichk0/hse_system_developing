@@ -4,84 +4,14 @@
 #include <sstream>
 #include <openssl/md5.h>
 
-bool ThreadQueue::Push(std::string word){
-    std::lock_guard lock(m_mutex);
-    if(!m_isAcive){
-        return false;
-    }
-    m_queue.push(std::move(word));
-    m_cond.notify_one();
-    return true;
-}
-bool ThreadQueue::Pop(std::string& word){
-    std::unique_lock lock(m_mutex);
-    if(!m_isAcive){
-        return false;
-    }
-    if(m_queue.empty()){
-        m_cond.wait(lock, [this](){
-            return !m_isAcive || !m_queue.empty();
-        });
-    }
-    if(!m_isAcive){
-        return false;
-    }
-    auto& wordInQueue = m_queue.front();
-    word = std::move(wordInQueue);
-    m_queue.pop();
-    return true;
-}
-
-void ThreadQueue::Stop(){
-    std::lock_guard lock(m_mutex);
-    m_isAcive = false;
-    m_cond.notify_all();
-}
-
-ThreadQueue::~ThreadQueue(){
-    this->Stop();
-}
-
-Md5Calcer::Md5Calcer(const std::string& initialWord){
-    m_queue.Push(initialWord);
-}
-
-Md5Calcer::Md5Calcer(const std::initializer_list<std::string>& initialWords){
-    if(initialWords.size() == 0){
-        throw std::runtime_error("Cant pass empty initial list to calcer");
-    }
-    for(const auto& word: initialWords){
-        m_queue.Push(word);
-    }
+Md5Calcer::Md5Calcer(const std::initializer_list<std::string>& initialWords) : m_gen(initialWords){
 }
 
 std::string Md5Calcer::GetNextWord()
 {
-    std::string next;
-    if(!m_queue.Pop(next)){
-        throw std::runtime_error("Queue not active");
-    }
-    return next;
+    return m_gen.GetNext();
 }
 
-void Md5Calcer::GenerateNextWords(const std::string &word)
-{
-    auto wordCopy = word;
-    constexpr auto diff1 = 'z' - 'a';
-    constexpr auto diff2 = 9;
-    auto setVars = [this](std::string& word, char initSymb, int diff){
-        auto it = std::next(word.end(), -1);
-        for(int i = 0; i <= diff; i++){
-            char symb = initSymb + i;
-            *it = symb;
-            m_queue.Push(word);
-        }
-    };
-    wordCopy += 'a';
-    setVars(wordCopy, 'a', diff1);
-    setVars(wordCopy, 'A', diff1);
-    setVars(wordCopy, '0', diff2);
-}
 
 CalcResult GenerateHash(const std::string &input)
 {
@@ -107,6 +37,17 @@ std::shared_ptr<Md5Calcer> Md5Calcer::Create(const std::initializer_list<std::st
 CalcResult Md5Calcer::GoNext(){
     std::string cur = this->GetNextWord();
     auto result = GenerateHash(cur);
-    this->GenerateNextWords(cur);
     return result;
+}
+
+WordsGenerator::WordsGenerator(const std::initializer_list<std::string> &initialWords) : m_words(initialWords.begin(), initialWords.end())
+{
+
+}
+
+std::string WordsGenerator::GetNext()
+{
+    auto index = this->GetCurrentIndex();
+    auto& wordCont = m_words[index];
+    return wordCont.GoNext();
 }
