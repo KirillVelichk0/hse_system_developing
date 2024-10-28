@@ -132,7 +132,7 @@ void ChildSessionsController::InterruptAll()
 }
 
 
-bool ProcessPostfix(std::string& postFix, std::string& result){
+static bool ProcessPostfix(std::string& postFix, std::string& result){
     auto it = std::find(postFix.begin(), postFix.end(), '\0');
     result = std::string(postFix.begin(), it);
     if(it != postFix.end() && *it == '\0'){

@@ -2,6 +2,7 @@
 #include "ipcexceptions.h"
 #include <array>
 #include <algorithm>
+#include <iostream>
 
 void ChildSession::CheckParentInput()
 {
@@ -72,7 +73,7 @@ void ChildSession::SendData(const std::string &data)
     m_pipe.WriteFromBuffer(data, data.size());
 }
 
-bool ProcessPostfix(std::string& postFix, std::string& result){
+static bool ProcessPostfix(std::string& postFix, std::string& result){
     auto it = std::find(postFix.begin(), postFix.end(), '\0');
     result = std::string(postFix.begin(), it);
     if(it != postFix.end() && *it == '\0'){
@@ -129,8 +130,14 @@ void ChildSession::StartSession()
             this->CheckParentInput();
             this->CheckWorkersStatuses();
             std::this_thread::yield();
-        } catch(...){
+        } catch(std::exception& ex){
             this->InterruptAllWorkers();
+            std::cout << "Child session done with id " <<getpid() << " and message: " << ex.what() << std::endl;
+            throw ChildSessionExit();
+        }
+        catch(...){
+            this->InterruptAllWorkers();
+            std::cout << "Child session done with id " <<getpid() << std::endl;
             throw ChildSessionExit();
         }
     }
