@@ -4,6 +4,7 @@
 #include <memory>
 #include <cstdint>
 #include <stdexcept>
+#include <iostream>
 #include <unistd.h>
 
 template <bool isParent>
@@ -25,6 +26,7 @@ private:
             for(int i = 0; i < 2; i++){
                 if(m_fds[i] != -1){
                     close((m_fds[i]));
+                    m_fds[i] = -1;
                 }
             }
         }
@@ -91,8 +93,15 @@ public:
         }
     }
 
-    PipeEnd(PipeEnd&&)=default;
-    PipeEnd& operator=(PipeEnd&&) = default;
+    PipeEnd(PipeEnd&& another){
+        std::swap(m_readFd, another.m_readFd);
+        std::swap(m_writeFd, another.m_writeFd);
+    };
+    PipeEnd& operator=(PipeEnd&& another){
+        std::swap(m_readFd, another.m_readFd);
+        std::swap(m_writeFd, another.m_writeFd);
+        return *this;
+    };
 
     template <class BufferType>
     std::uint32_t ReadToBuffer(BufferType& buffer, std::size_t lenToRead){
@@ -102,6 +111,10 @@ public:
 
         auto bytesReaden = read(m_readFd, (char*)buffer.data(), lenToRead * sizeof(buffer[0]));
         if(bytesReaden == -1){
+            if(errno == EAGAIN){
+                return 0;
+            }
+            std::cout << errno << " read error"<< std::endl;
             throw std::runtime_error("Cant read to buffer");
         }
         return bytesReaden;
@@ -117,6 +130,7 @@ public:
         while(sended < lenToWrite){
             auto bytesWriten = write(m_writeFd, (char*)buffer.data() + sended, lenToWrite * sizeof(buffer[0]));
             if(bytesWriten < 0){
+                std::cout << errno << " Write error"<< std::endl;
                 throw std::runtime_error("Cant write data to pipe");
             }
             sended += bytesWriten;

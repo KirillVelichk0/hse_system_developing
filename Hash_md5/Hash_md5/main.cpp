@@ -6,9 +6,9 @@
 int main(int argc, char* argv[]) {
     int returnCode = 0;
     try{
-    if (argc == 2) {
-        std::string inputText;
-        inputText += argv[1];
+    if (true) {
+        std::string inputText = "q";
+        //inputText += argv[1];
         auto isCorrectSymbol = [](char symb){
           symb = std::tolower(symb);
           return (symb >= 'a' && symb <= 'z') || (symb >= '0' && symb <= '9');
