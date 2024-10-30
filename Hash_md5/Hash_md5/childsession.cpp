@@ -3,6 +3,7 @@
 #include <array>
 #include <algorithm>
 #include <iostream>
+#include <numeric>
 
 void ChildSession::CheckParentInput()
 {
@@ -45,7 +46,8 @@ void ChildSession::InitWorkers()
             }
         };
     };
-    auto poolSize = std::thread::hardware_concurrency() - 1;
+    int poolSize = std::thread::hardware_concurrency() - 1;
+    poolSize = std::max(1, poolSize);
     for(int i = 0; i < poolSize; i++){
         auto& status = m_threads.m_statuses.emplace_back(std::make_shared<status::ThreadStatus>());
         m_threads.m_threads.emplace_back(createTask(status));
