@@ -3,14 +3,17 @@
 #include <Executor/IResourceProvider.hpp>
 #include <atomic>
 #include <boost/asio/strand.hpp>
+#include <memory>
 
-class StrandExecutor : public IExecutor {
+class StrandExecutor final
+    : public IExecutor,
+      public std::enable_shared_from_this<StrandExecutor> {
 public:
   static std::shared_ptr<StrandExecutor>
   Create(std::shared_ptr<IResourceProvider> base);
 
   ~StrandExecutor() override;
-  void AddTask(std::function<void()> task) override;
+  void AddTask(std::function<void(asio::executor)> task) override;
   void Stop() override;
 
 public:

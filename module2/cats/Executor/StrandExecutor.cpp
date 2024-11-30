@@ -17,12 +17,21 @@ StrandExecutor::Create(std::shared_ptr<IResourceProvider> provider) {
   return std::shared_ptr<StrandExecutor>(new StrandExecutor(provider));
 }
 
-void StrandExecutor::AddTask(std::function<void()> task) {
+void StrandExecutor::AddTask(std::function<void(asio::executor)> task) {
   if (task == nullptr) {
     throw std::invalid_argument("Task cant be nullptr");
   }
   if (!m_isRun.load(std::memory_order_acquire)) {
     throw std::runtime_error("StrandExecutor stopped");
   }
-  boost::asio::post(m_strand, task);
+  auto safeTask = [weakSelf = weak_from_this(), task = std::move(task),
+                   executor =
+                       boost::asio::get_associated_executor(m_strand)]() {
+    auto self = weakSelf.lock();
+    if (self == nullptr) {
+      return;
+    }
+    task(executor);
+  };
+  boost::asio::post(m_strand, std::move(safeTask));
 }

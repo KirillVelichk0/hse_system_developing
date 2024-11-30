@@ -1,5 +1,6 @@
 #include <Executor/BaseExecutor.hpp>
 #include <boost/asio/executor.hpp>
+#include <boost/asio/post.hpp>
 
 BaseExecutor::BaseExecutor(std::size_t poolSize) {
 
@@ -11,13 +12,6 @@ BaseExecutor::BaseExecutor(std::size_t poolSize) {
 
 std::shared_ptr<BaseExecutor> BaseExecutor::Create(std::size_t poolSize) {
   return std::shared_ptr<BaseExecutor>(new BaseExecutor(poolSize));
-}
-
-void BaseExecutor::AddTask(std::function<void()> task) {
-  if (task == nullptr) {
-    throw std::invalid_argument("Task cant be nullptr");
-  }
-  m_service.post(std::move(task));
 }
 
 void BaseExecutor::Stop() {
