@@ -3,7 +3,7 @@
 
 StrandExecutor::StrandExecutor(std::shared_ptr<IResourceProvider> provider)
     : m_provider(provider),
-      m_strand(boost::asio::make_strand(provider->GetService())) {}
+      m_strand(boost::asio::make_strand(provider->GetExecutor())) {}
 
 StrandExecutor::~StrandExecutor() { Stop(); }
 

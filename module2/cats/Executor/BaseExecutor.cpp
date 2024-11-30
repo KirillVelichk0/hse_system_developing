@@ -28,4 +28,6 @@ void BaseExecutor::Stop() {
 
 BaseExecutor::~BaseExecutor() { Stop(); }
 
-boost::asio::io_service &BaseExecutor::GetService() { return m_service; }
+boost::asio::executor BaseExecutor::GetExecutor() {
+  return m_service.get_executor();
+}

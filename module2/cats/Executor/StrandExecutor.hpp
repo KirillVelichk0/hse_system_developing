@@ -24,6 +24,6 @@ private:
 
 private:
   std::shared_ptr<IResourceProvider> m_provider;
-  boost::asio::strand<boost::asio::io_service::executor_type> m_strand;
+  boost::asio::strand<boost::asio::executor> m_strand;
   std::atomic<bool> m_isRun{true};
 };

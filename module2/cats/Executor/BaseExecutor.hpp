@@ -14,7 +14,7 @@ public:
   void AddTask(std::function<void()> task) override;
   void Stop() override;
 
-  boost::asio::io_service &GetService() override;
+  boost::asio::executor GetExecutor() override;
 
 public:
   BaseExecutor(const BaseExecutor &) = delete;
