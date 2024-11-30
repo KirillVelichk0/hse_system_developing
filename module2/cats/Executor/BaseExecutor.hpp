@@ -1,11 +1,12 @@
 #pragma once
 #include <Executor/IExecutor.hpp>
+#include <Executor/IResourceProvider.hpp>
 #include <boost/asio/executor.hpp>
 #include <boost/asio/io_service.hpp>
 #include <boost/thread/thread.hpp>
 #include <memory>
 
-class BaseExecutor final : public IExecutor {
+class BaseExecutor final : public IExecutor, public IResourceProvider {
 public:
   static std::shared_ptr<BaseExecutor> Create(std::size_t poolSize);
 
@@ -13,7 +14,7 @@ public:
   void AddTask(std::function<void()> task) override;
   void Stop() override;
 
-  auto &GetService() { return m_service; }
+  boost::asio::io_service &GetService() override;
 
 public:
   BaseExecutor(const BaseExecutor &) = delete;

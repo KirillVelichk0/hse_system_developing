@@ -1,13 +1,13 @@
 #pragma once
-#include <Executor/BaseExecutor.hpp>
 #include <Executor/IExecutor.hpp>
+#include <Executor/IResourceProvider.hpp>
+#include <atomic>
 #include <boost/asio/strand.hpp>
 
 class StrandExecutor : public IExecutor {
 public:
-  // Тут было бы неплохо подружить все с boost::asio::executor, но это хлопотно
   static std::shared_ptr<StrandExecutor>
-  Create(std::shared_ptr<BaseExecutor> base);
+  Create(std::shared_ptr<IResourceProvider> base);
 
   ~StrandExecutor() override;
   void AddTask(std::function<void()> task) override;
@@ -20,9 +20,10 @@ public:
   StrandExecutor &operator=(StrandExecutor &&) = delete;
 
 private:
-  StrandExecutor(std::shared_ptr<BaseExecutor> base);
+  StrandExecutor(std::shared_ptr<IResourceProvider> base);
 
 private:
-  std::shared_ptr<BaseExecutor> m_base;
+  std::shared_ptr<IResourceProvider> m_provider;
   boost::asio::strand<boost::asio::io_service::executor_type> m_strand;
+  std::atomic<bool> m_isRun{true};
 };

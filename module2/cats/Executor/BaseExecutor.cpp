@@ -27,3 +27,5 @@ void BaseExecutor::Stop() {
 }
 
 BaseExecutor::~BaseExecutor() { Stop(); }
+
+boost::asio::io_service &BaseExecutor::GetService() { return m_service; }
