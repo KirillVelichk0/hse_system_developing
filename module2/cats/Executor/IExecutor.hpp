@@ -1,4 +1,5 @@
 #pragma once
+#include <boost/asio/io_service.hpp>
 #include <functional>
 
 class IExecutor {
