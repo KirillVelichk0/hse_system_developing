@@ -14,6 +14,15 @@ std::shared_ptr<BaseExecutor> BaseExecutor::Create(std::size_t poolSize) {
   return std::shared_ptr<BaseExecutor>(new BaseExecutor(poolSize));
 }
 
+void BaseExecutor::AddTask(std::function<void(asio::executor)> task) {
+  if (task == nullptr) {
+    throw std::invalid_argument("Task cant be nullptr");
+  }
+  boost::asio::post(
+      m_service, [task = std::move(task),
+                  executor = m_service.get_executor()]() { task(executor); });
+}
+
 void BaseExecutor::Stop() {
   m_group.interrupt_all();
   m_service.stop();
