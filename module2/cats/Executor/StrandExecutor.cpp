@@ -24,14 +24,12 @@ void StrandExecutor::AddTask(std::function<void(asio::executor)> task) {
   if (!m_isRun.load(std::memory_order_acquire)) {
     throw std::runtime_error("StrandExecutor stopped");
   }
-  auto safeTask = [weakSelf = weak_from_this(), task = std::move(task),
-                   executor =
-                       boost::asio::get_associated_executor(m_strand)]() {
+  auto safeTask = [weakSelf = weak_from_this(), task = std::move(task)]() {
     auto self = weakSelf.lock();
     if (self == nullptr) {
       return;
     }
-    task(executor);
+    task(self->m_strand);
   };
   boost::asio::post(m_strand, std::move(safeTask));
 }
