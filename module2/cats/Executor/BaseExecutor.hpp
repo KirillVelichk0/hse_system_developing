@@ -11,10 +11,10 @@ public:
   static std::shared_ptr<BaseExecutor> Create(std::size_t poolSize);
 
   ~BaseExecutor() override;
-  void AddTask(std::function<void(asio::executor)> task) override;
+  void AddTask(std::function<void(asio::any_io_executor)> task) override;
   void Stop() override;
 
-  boost::asio::executor GetExecutor() override;
+  boost::asio::any_io_executor GetExecutor() override;
 
 public:
   BaseExecutor(const BaseExecutor &) = delete;

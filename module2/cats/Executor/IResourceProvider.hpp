@@ -1,8 +1,8 @@
 #pragma once
-#include <boost/asio/executor.hpp>
+#include <boost/asio/any_io_executor.hpp>
 
 class IResourceProvider {
 public:
   virtual ~IResourceProvider();
-  virtual boost::asio::executor GetExecutor() = 0;
+  virtual boost::asio::any_io_executor GetExecutor() = 0;
 };

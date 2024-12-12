@@ -7,7 +7,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O2")
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-find_package(Boost REQUIRED COMPONENTS thread system coroutine)
+find_package(Boost 1.74 REQUIRED COMPONENTS system thread)
 
 if (NOT Boost_FOUND)
     message(FATAL_ERROR "OpenSSL not found!")
@@ -17,7 +17,8 @@ set(INCLUDE_ROOT ${CMAKE_CURRENT_SOURCE_DIR})
 include_directories(${INCLUDE_ROOT})
 
 add_subdirectory(Executor)
+add_subdirectory(Client)
 
 add_executable(cat main.cpp)
 
-target_link_libraries(cat executor)
+target_link_libraries(cat executor client)

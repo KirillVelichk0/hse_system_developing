@@ -13,7 +13,7 @@ public:
   Create(std::shared_ptr<IResourceProvider> base);
 
   ~StrandExecutor() override;
-  void AddTask(std::function<void(asio::executor)> task) override;
+  void AddTask(std::function<void(asio::any_io_executor)> task) override;
   void Stop() override;
 
 public:
@@ -27,6 +27,6 @@ private:
 
 private:
   std::shared_ptr<IResourceProvider> m_provider;
-  boost::asio::strand<boost::asio::executor> m_strand;
+  boost::asio::strand<boost::asio::any_io_executor> m_strand;
   std::atomic<bool> m_isRun{true};
 };

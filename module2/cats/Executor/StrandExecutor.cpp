@@ -17,7 +17,7 @@ StrandExecutor::Create(std::shared_ptr<IResourceProvider> provider) {
   return std::shared_ptr<StrandExecutor>(new StrandExecutor(provider));
 }
 
-void StrandExecutor::AddTask(std::function<void(asio::executor)> task) {
+void StrandExecutor::AddTask(std::function<void(asio::any_io_executor)> task) {
   if (task == nullptr) {
     throw std::invalid_argument("Task cant be nullptr");
   }
