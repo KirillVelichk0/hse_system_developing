@@ -10,6 +10,7 @@ public:
   bool TryToSave(std::string &&image) override;
   void Clear() override;
   std::string GetZip() override;
+  std::uint32_t GetSize() const override;
 
 private:
   std::set<std::size_t> m_hashes;

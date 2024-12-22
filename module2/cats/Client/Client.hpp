@@ -3,6 +3,22 @@
 #include <Executor/IExecutor.hpp>
 #include <mutex>
 
+template <class Functor> CallbackType CreateDefaultWrapper(Functor &&functor) {
+  return [functor = std::forward<Functor>(functor)](
+             http::response<http::string_body> &&response,
+             beast::error_code ec) {
+    if (ec) {
+      throw std::runtime_error("Cant process responce - get error: " +
+                               ec.message());
+    }
+    if (response.result_int() < 200 || response.result_int() >= 300) {
+      throw std::runtime_error("Cant process responce - get bad status code: " +
+                               std::to_string(response.result_int()));
+    }
+    functor(std::move(response).body());
+  };
+}
+
 class Client {
 public:
   static std::shared_ptr<Client> Create(std::shared_ptr<IExecutor> executor);

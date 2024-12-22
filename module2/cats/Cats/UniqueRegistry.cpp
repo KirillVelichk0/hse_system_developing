@@ -91,3 +91,5 @@ std::string UniqueRegistry::GetZip() {
   return {std::istreambuf_iterator<char>(zipData),
           std::istreambuf_iterator<char>()};
 }
+
+std::uint32_t UniqueRegistry::GetSize() const { return m_hashes.size(); }
