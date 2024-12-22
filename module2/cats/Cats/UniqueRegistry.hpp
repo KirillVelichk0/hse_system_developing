@@ -14,4 +14,6 @@ public:
 private:
   std::set<std::size_t> m_hashes;
   const std::filesystem::path m_path;
+  const std::filesystem::path m_imagesPath;
+  const std::filesystem::path m_zipFilePath;
 };
