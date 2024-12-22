@@ -1,4 +1,5 @@
 #pragma once
+#include <boost/beast/http/buffer_body.hpp>
 #define BOOST_ASIO_USE_TS_EXECUTOR_AS_DEFAULT 1
 
 #include <boost/beast/core.hpp>
@@ -13,7 +14,6 @@
 #include <cstdlib>
 #include <functional>
 #include <memory>
-#include <string>
 
 namespace beast = boost::beast;   // from <boost/beast.hpp>
 namespace http = beast::http;     // from <boost/beast/http.hpp>
