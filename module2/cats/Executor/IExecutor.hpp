@@ -1,4 +1,5 @@
 #pragma once
+#define BOOST_ASIO_USE_TS_EXECUTOR_AS_DEFAULT 1
 #include <boost/asio/any_io_executor.hpp>
 #include <boost/asio/executor.hpp>
 #include <functional>

@@ -1,5 +1,3 @@
-project(cats LANGUAGES CXX)
-
 add_library(cats Cats.cpp UniqueRegistry.cpp)
 
-target_link_libraries(cats Boost::boost Boost::thread client executor ${OpenCV_LIBS} ZLIB::ZLIB ${MINIZIP_LIB})
+target_link_libraries(cats PUBLIC my_executor client ${OpenCV_LIBS} ZLIB::ZLIB ${MINIZIP_LIB})

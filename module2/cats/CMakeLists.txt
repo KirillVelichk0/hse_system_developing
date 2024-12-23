@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.5)
 
-project(cat LANGUAGES CXX)
+project(cat_proj LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -25,4 +25,4 @@ add_subdirectory(Cats)
 
 add_executable(cat main.cpp)
 
-target_link_libraries(cat executor client)
+target_link_libraries(cat PUBLIC my_executor client cats)

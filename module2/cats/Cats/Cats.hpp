@@ -18,7 +18,7 @@ public:
   static std::shared_ptr<CatsProcessor>
   Create(std::shared_ptr<StrandExecutor> executor,
          std::unique_ptr<IRegistry> registry);
-  ~CatsProcessor();
+  ~CatsProcessor() = default;
 
   inline void SetObserver(std::function<void(ProcessingStatus)> observer) {
     m_statusObserver = std::move(observer);

@@ -35,23 +35,22 @@ CatsProcessor::ProcessNewImage(std::string &&data) {
 
 CallbackType CatsProcessor::CreateNewImageProcessor() {
   return CreateDefaultWrapper(
-      [weakSelf = weak_from_this()](http::response<http::string_body> &&body,
-                                    beast::error_code ec) {
+      [weakSelf = weak_from_this()](std::string &&body) {
         auto self = weakSelf.lock();
         if (self == nullptr) {
           throw std::runtime_error("Processor is stop");
         }
-        self->m_exec->AddTask([weakSelf = std::move(weakSelf),
-                               body = std::move(body)](
-                                  boost::asio::any_io_executor exec) mutable {
-          auto self = weakSelf.lock();
-          if (self == nullptr) {
-            throw std::runtime_error("Processor strand is stop");
-          }
-          auto processingStatus = self->ProcessNewImage(std::move(body).body());
-          if (self->m_statusObserver != nullptr) {
-            self->m_statusObserver(std::move(processingStatus));
-          }
-        });
+        self->m_exec->AddTask(
+            [weakSelf = std::move(weakSelf), body = std::move(body)](
+                [[maybe_unused]] boost::asio::any_io_executor exec) mutable {
+              auto self = weakSelf.lock();
+              if (self == nullptr) {
+                throw std::runtime_error("Processor strand is stop");
+              }
+              auto processingStatus = self->ProcessNewImage(std::move(body));
+              if (self->m_statusObserver != nullptr) {
+                self->m_statusObserver(std::move(processingStatus));
+              }
+            });
       });
 }
