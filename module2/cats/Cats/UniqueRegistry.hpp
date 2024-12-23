@@ -5,7 +5,8 @@
 
 class UniqueRegistry : public IRegistry {
 public:
-  explicit UniqueRegistry(const std::filesystem::path &dir);
+  explicit UniqueRegistry(
+      const std::filesystem::path &dir = std::filesystem::current_path());
   ~UniqueRegistry() override;
   bool TryToSave(std::string &&image) override;
   void Clear() override;
