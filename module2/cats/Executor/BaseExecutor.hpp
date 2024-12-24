@@ -28,4 +28,5 @@ private:
 private:
   boost::thread_group m_group;
   boost::asio::io_service m_service;
+  asio::executor_work_guard<asio::io_context::executor_type> m_guard;
 };

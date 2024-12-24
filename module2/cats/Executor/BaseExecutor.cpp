@@ -1,7 +1,9 @@
 #include <Executor/BaseExecutor.hpp>
 #include <boost/asio/post.hpp>
+#include <iostream>
 
-BaseExecutor::BaseExecutor(std::size_t poolSize) {
+BaseExecutor::BaseExecutor(std::size_t poolSize)
+    : m_guard(boost::asio::make_work_guard(m_service)) {
 
   auto threadRunner = [this]() { m_service.run(); };
   for (std::size_t i = 0; i < poolSize; i++) {
@@ -23,12 +25,15 @@ void BaseExecutor::AddTask(std::function<void(asio::any_io_executor)> task) {
 }
 
 void BaseExecutor::Stop() {
+  m_guard.reset();
   m_group.interrupt_all();
   m_service.stop();
-  m_group.join_all();
 }
 
-BaseExecutor::~BaseExecutor() { Stop(); }
+BaseExecutor::~BaseExecutor() {
+  Stop();
+  m_group.join_all();
+}
 
 boost::asio::any_io_executor BaseExecutor::GetExecutor() {
   return m_service.get_executor();

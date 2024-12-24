@@ -6,7 +6,7 @@
 #include <memory>
 #include <optional>
 
-class CatsProcessor final : std::enable_shared_from_this<CatsProcessor> {
+class CatsProcessor final : public std::enable_shared_from_this<CatsProcessor> {
 public:
   struct ProcessingStatus {
     std::uint32_t processedCount;

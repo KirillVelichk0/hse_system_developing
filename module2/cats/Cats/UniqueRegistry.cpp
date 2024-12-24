@@ -1,6 +1,7 @@
 #include <Cats/UniqueRegistry.hpp>
 #include <filesystem>
 #include <fstream>
+#include <iostream>
 #include <iterator>
 #include <minizip/zip.h>
 #include <opencv2/imgcodecs.hpp>
@@ -57,7 +58,7 @@ auto GetHash(const std::string &data) { return std::hash<std::string>()(data); }
 UniqueRegistry::UniqueRegistry(const std::filesystem::path &dir)
     : m_path(ValidatePath(dir)), m_imagesPath(m_path / "cats"),
       m_zipFilePath(m_path / "cats.zip") {
-  std::filesystem::create_directory(m_path);
+  std::filesystem::create_directory(m_imagesPath);
 }
 
 UniqueRegistry::~UniqueRegistry() { this->Clear(); }
@@ -74,14 +75,14 @@ bool UniqueRegistry::TryToSave(std::string &&image) {
     throw std::runtime_error("Cant decode image");
   }
   auto name = std::to_string(m_hashes.size()) + ".jpg";
-  auto fullPathToFile = m_path / name;
+  auto fullPathToFile = m_imagesPath / name;
   cv::imwrite(fullPathToFile, img);
   return true;
 }
 
 void UniqueRegistry::Clear() {
   std::filesystem::remove_all(m_imagesPath);
-  std::filesystem::remove(m_zipFilePath);
+  // std::filesystem::remove(m_zipFilePath);
   m_hashes.clear();
 }
 
@@ -93,3 +94,8 @@ std::string UniqueRegistry::GetZip() {
 }
 
 std::uint32_t UniqueRegistry::GetSize() const { return m_hashes.size(); }
+
+void UniqueRegistry::Reset() {
+  this->Clear();
+  std::filesystem::create_directory(m_imagesPath);
+}

@@ -12,6 +12,7 @@ public:
   void Clear() override;
   std::string GetZip() override;
   std::uint32_t GetSize() const override;
+  void Reset() override;
 
 private:
   std::set<std::size_t> m_hashes;

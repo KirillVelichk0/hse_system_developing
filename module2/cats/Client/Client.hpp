@@ -1,17 +1,21 @@
 #pragma once
 #include <Client/ClientSession.hpp>
 #include <Executor/IExecutor.hpp>
+#include <iostream>
 #include <mutex>
 
 template <class Functor> CallbackType CreateDefaultWrapper(Functor &&functor) {
   return [functor = std::forward<Functor>(functor)](
              http::response<http::string_body> &&response,
              beast::error_code ec) {
+    std::cout << "Calling wrapper" << std::endl;
     if (ec) {
+      std::cout << ec.message() << std::endl;
       throw std::runtime_error("Cant process responce - get error: " +
                                ec.message());
     }
     if (response.result_int() < 200 || response.result_int() >= 300) {
+      std::cout << "Bad status code: " << response.result_int() << std::endl;
       throw std::runtime_error("Cant process responce - get bad status code: " +
                                std::to_string(response.result_int()));
     }

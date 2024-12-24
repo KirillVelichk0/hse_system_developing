@@ -21,6 +21,7 @@ template <class TSessionParams>
 void Client::StartSessionImpl(TSessionParams &&sessionParams) {
   auto task = [params = std::forward<TSessionParams>(sessionParams),
                resolver = m_resolver](asio::any_io_executor executor) mutable {
+    std::cout << "Starting task" << std::endl;
     auto clientSession = std::shared_ptr<ClientSessionInternal>(
         new ClientSessionInternal(executor));
     auto host = params.host;
@@ -31,5 +32,6 @@ void Client::StartSessionImpl(TSessionParams &&sessionParams) {
         beast::bind_front_handler(&ClientSessionInternal::on_resolve,
                                   clientSession));
   };
+  std::cout << "Adding task" << std::endl;
   m_executor->AddTask(std::move(task));
 }
