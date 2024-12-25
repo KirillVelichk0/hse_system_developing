@@ -48,7 +48,7 @@ private:
 
 private:
   beast::tcp_stream stream_;
-  beast::flat_buffer buffer_; // (Must persist between reads)
+  beast::multi_buffer buffer_; // (Must persist between reads)
   http::request<http::string_body> req_;
   http::response<http::string_body> res_;
   CallbackType m_callback;

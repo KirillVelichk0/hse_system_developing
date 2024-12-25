@@ -12,6 +12,11 @@ find_package(ZLIB REQUIRED)
 find_package(OpenCV REQUIRED)
 find_package(Boost 1.74 REQUIRED COMPONENTS system thread)
 
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g")
+set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -g")
+set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -g")
+set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -g")
+
 if (NOT Boost_FOUND)
     message(FATAL_ERROR "OpenSSL not found!")
 endif()

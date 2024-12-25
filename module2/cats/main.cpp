@@ -5,6 +5,7 @@
 #include <Executor/StrandExecutor.hpp>
 
 #include <atomic>
+#include <future>
 #include <iostream>
 #include <thread>
 
@@ -16,18 +17,19 @@ int main(int argc, char *argv[]) {
   std::unique_ptr<IRegistry> registry = std::make_unique<UniqueRegistry>();
   auto catsProcessor = CatsProcessor::Create(strandExec, std::move(registry));
   auto getCallback = catsProcessor->CreateNewImageProcessor();
-
-  std::atomic_bool isDone = false;
+  std::promise<bool> pr;
+  std::future<bool> f = pr.get_future();
 
   CallbackType finalCallback = [base, baseAlt,
-                                &isDone](http::response<http::string_body> &&_,
-                                         beast::error_code ec) {
+                                &pr](http::response<http::string_body> &&resp,
+                                     beast::error_code ec) {
     std::cout << "Final" << std::endl;
-    isDone.store(true, std::memory_order_release);
+    pr.set_value(true);
 
     if (ec) {
       std::cout << "Bad final: " << ec.message() << std::endl;
     } else {
+      // std::cout << resp.body() << std::endl;
       std::cout << "Successfully sended" << std::endl;
     }
     base->Stop();
@@ -78,9 +80,7 @@ int main(int argc, char *argv[]) {
   startProcess();
   std::cout << "Started process" << std::endl;
 
-  while (!isDone.load(std::memory_order_acquire)) {
-    std::this_thread::yield();
-  }
+  f.wait();
   std::cout << "Done" << std::endl;
   return 0;
 }
