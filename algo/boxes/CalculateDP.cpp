@@ -15,17 +15,17 @@ namespace {
  * */
 using MultiIndex = std::vector<std::uint64_t>;
 auto printValue = [](auto value) {
-  std::cout << "Pipeline: " << value.first << ", sum: " << value.second
-            << std::endl;
+  // std::cout << "Pipeline: " << value.first << ", sum: " << value.second
+  // << std::endl;
 };
 auto indexPrinterGlob = [](auto &index, const std::string &indexName,
                            auto currentIndexPart) {
-  std::cout << indexName << ", index data: ";
+  // std::cout << indexName << ", index data: ";
   for (int i = 0; i < index.size() - 1; i++) {
-    std::cout << index[i] << " ";
+    // std::cout << index[i] << " ";
   }
-  std::cout << "Cum sum: " << index.back()
-            << ", current index part: " << currentIndexPart << std::endl;
+  // std::cout << "Cum sum: " << index.back()
+  // << ", current index part: " << currentIndexPart << std::endl;
 };
 struct ValueData {
   std::unordered_map<std::uint64_t, std::uint64_t> elems;
@@ -106,16 +106,16 @@ void AddMultiIndexToSet(const MultiIndex &currentMultiIndex,
   const auto curLim = segmentsCount - currentMultiIndex.back();
   auto indexPrinter = [currentIndexPart](auto &index,
                                          const std::string &indexName) {
-    std::cout << indexName << ", index data: ";
-    for (int i = 0; i < index.size() - 1; i++) {
-      std::cout << index[i] << " ";
-    }
-    std::cout << "Cum sum: " << index.back()
-              << ", current index part: " << currentIndexPart << std::endl;
+    // std::cout << indexName << ", index data: ";
+    // for (int i = 0; i < index.size() - 1; i++) {
+    // std::cout << index[i] << " ";
+    // }
+    // std::cout << "Cum sum: " << index.back()
+    // << ", current index part: " << currentIndexPart << std::endl;
   };
   if (currentMultiIndex.back() == segmentsCount) {
     multiIndexSet.push_back(currentMultiIndex);
-    indexPrinter(currentMultiIndex, "Added multiindex");
+    // indexPrinter(currentMultiIndex, "Added multiindex");
     return;
   }
   if (currentIndexPart == currentMultiIndex.size() - 1) {
@@ -253,7 +253,7 @@ std::uint64_t CalculateTimeV2(const InputData &input) {
   if (!optimalValue.has_value()) {
     throw std::runtime_error("Critical error in calculate algorithm");
   }
-  std::cout << "Last pipe " << LastPipe << std::endl;
+  // std::cout << "Last pipe " << LastPipe << std::endl;
 
   return optimalValue.value();
 }
@@ -264,14 +264,14 @@ uint64_t GetMoveCost(std::uint64_t segmentIndex,
   // Так как в условии задачи не сказано иного, считаем, что деталь может начать
   // свой путь на любом из конвейеров
   auto printCost = [&](bool isSpec) {
-    std::cout << "AT1\n";
+    // std::cout << "AT1\n";
     auto val = input.transportCosts.at(segmentIndex);
     if (isSpec) {
       val = 0;
     }
-    std::cout << "Cost: " << val << ", segment index: " << segmentIndex
-              << ", curPipeIndex: " << currentPipeIndex
-              << ", nextPipeIndex: " << nextPipeIndex << std::endl;
+    // std::cout << "Cost: " << val << ", segment index: " << segmentIndex
+    // << ", curPipeIndex: " << currentPipeIndex
+    // << ", nextPipeIndex: " << nextPipeIndex << std::endl;
   };
   if (segmentIndex == 0) {
     // printCost(true);

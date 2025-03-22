@@ -65,17 +65,17 @@ def maximize_army_strength(m, k, d, r, p):
     :return: Оптимальное количество магов, рыцарей, драконов и максимальная сила
     """
     c = [p[0], p[1], p[2]]
-    A = [m, k, d]
+    A = np.array([m, k, d]).T
     b = r
     return simplex_method(c, A, b)
 
 # Пример вызова
 if __name__ == "__main__":
-    m = [1, 2, 3]
-    k = [2, 1, 2]
-    d = [3, 3, 3]
-    r = [10, 50, 30]
-    p = [30, 30, 50]
+    m = [10, 0, 0]
+    k = [0, 10, 0]
+    d = [100, 100, 100]
+    r = [220, 220, 220]
+    p = [11, 10, 1000]
     
     solution = maximize_army_strength(m, k, d, r, p)
     print(solution)
